@@ -10,10 +10,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Event;
+use App\Entity\Lecture;
 
 
     /**
-     * @Route("/event", name="event_")
+     * @Route("/events", name="event_")
      */
 
 class EventController extends AbstractController
@@ -23,8 +24,8 @@ class EventController extends AbstractController
      */
     public function index(ManagerRegistry $doctrine): Response
     {
-        $doc = $doctrine->getManager();
-        $events = $doc->getRepository(Event::class)->findAll();
+        $entityManager = $doctrine->getManager();
+        $events = $entityManager->getRepository(Event::class)->findAll();
 
         if($events == NULL) {
             return new JsonResponse(['event' => 'Não há eventos!']);
@@ -53,8 +54,8 @@ class EventController extends AbstractController
      */
     public function showOnly(ManagerRegistry $doctrine, $EventId)
     {
-        $doc = $doctrine->getManager();
-        $events = $doc->getRepository(Event::class)->find($EventId);
+        $entityManager = $doctrine->getManager();
+        $events = $entityManager->getRepository(Event::class)->find($EventId);
 
         if($events == NULL) {
             return new JsonResponse(['event' => 'Não há eventos com o ID '. $EventId ]);
@@ -81,7 +82,7 @@ class EventController extends AbstractController
     public function create(ManagerRegistry $doctrine, Request $request) 
     {
         $data = $request->request->all();
-        $doc = $doctrine->getManager();
+        $entityManager = $doctrine->getManager();
 
         $event = new Event();
 
@@ -93,8 +94,8 @@ class EventController extends AbstractController
         $event->setCreatedAt(new \DateTime('now', new \DateTimezone('America/Sao_Paulo')));
         $event->setUpdatedAt(new \DateTime('now', new \DateTimezone('America/Sao_Paulo')));
 
-        $doc->persist($event);
-        $doc->flush();
+        $entityManager->persist($event);
+        $entityManager->flush();
 
         return new JsonResponse(['event' => 'Evento criado com sucesso']);
     }
@@ -104,10 +105,10 @@ class EventController extends AbstractController
      */
      public function update(Request $request, ManagerRegistry $doctrine, $EventId) 
      {
-        $doc = $doctrine->getManager();
+        $entityManager = $doctrine->getManager();
         $data = $request->request->all();
 
-        $event = $doc->getRepository(Event::class)->find($EventId);
+        $event = $entityManager->getRepository(Event::class)->find($EventId);
         if($request->request->has('title')) 
         {
             $event->setTitle($data['title']);
@@ -121,7 +122,7 @@ class EventController extends AbstractController
             $event->setStatus($data['status']);
         }
         $event->setUpdatedAt(new \DateTime('now', new \DateTimezone('America/Sao_Paulo')));
-        $doc->flush();
+        $entityManager->flush();
 
         return new JsonResponse(['data' => 'Evento de ID '.$EventId.' atualizado com sucesso!']);
      }
@@ -131,11 +132,12 @@ class EventController extends AbstractController
      */
     public function delete(ManagerRegistry $doctrine, $EventId) 
     {
-        $doc = $doctrine->getManager();
+        $entityManager = $doctrine->getManager();
 
-        $event = $doc->getRepository(Event::class)->find($EventId);
-        $remove = $doc->remove($event);
-        $doc->flush();
+        $event = $entityManager->getRepository(Event::class)->find($EventId);
+
+        $remove = $entityManager->remove($event);
+        $entityManager->flush();
 
         return new JsonResponse(['data' => 'Evento de ID '.$EventId.' REMOVIDO com sucesso!']);
     }
