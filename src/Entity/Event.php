@@ -4,10 +4,36 @@ namespace App\Entity;
 
 use App\Repository\EventRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
 {
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Lecture", mappedBy="event")
+     */
+    private $lectures;
+    // ...
+    public function __construct()
+    {
+        $this->lecture = new ArrayCollection();
+    }
+    public function getLecture()
+    {
+        return $this->lectures;
+    }
+    public function setLecture(ArrayCollection $lectures)
+    {
+        foreach ($lectures as $lecture) {
+            $lecture->setEvent($this);
+        }
+
+        $this->lectures = $lectures;
+        return $this;
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

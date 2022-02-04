@@ -8,6 +8,26 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LectureRepository::class)]
 class Lecture
 {
+
+    /**
+     * @var Event
+     *
+     * @ORM\ManyToOne(targetEntity="Event", inversedBy="lecture")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $event;
+    // ...
+    public function getEvent()
+    {
+        return $this->event;
+    }
+
+    public function setEvent(Event $event)
+    {
+        $this->event = $event;
+        return $this;
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

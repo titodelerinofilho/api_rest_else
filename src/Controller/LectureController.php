@@ -100,12 +100,44 @@ class LectureController extends AbstractController
     }
 
     #[Route('/{LectureId}', name: 'update', methods: 'PUT|PATCH')]
-    public function update(): Response
+    public function update(ManagerRegistry $doctrine, Request $request): Response
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/LectureController.php',
-        ]);
+        $entityManager = $doctrine->getManager();
+        $data = $request->request->all();
+
+        $event = $entityManager->getRepository(Event::class)->find($EventId);
+        if($request->request->has('title')) 
+        {
+            $event->setTitle($data['title']);
+        }
+        if($request->request->has('date')) 
+        {
+            $event->setDate($data['date']);
+        }
+        if($request->request->has('event_id')) 
+        {
+            $event->setEventId($data['event_id']);
+        }
+        if($request->request->has('time_start')) 
+        {
+            $event->setTimeStart($data['time_start']);
+        }
+        if($request->request->has('time_end')) 
+        {
+            $event->setTimeEnd($data['time_end']);
+        }
+        if($request->request->has('description'))
+        {
+            $event->setDescription($data['description']);
+        }
+        if($request->request->has('speaker'))
+        {
+            $event->setSpeaker($data['speaker']);
+        }
+        $event->setUpdatedAt(new \DateTime('now', new \DateTimezone('America/Sao_Paulo')));
+        $entityManager->flush();
+
+        return new JsonResponse(['lecture' => 'Palestra de ID '.$EventId.' atualizado com sucesso!']);
     }
 
     #[Route('/{LectureId}', name: 'delete', methods: 'DELETE')]
